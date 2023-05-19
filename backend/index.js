@@ -10,6 +10,9 @@ const port = 3000
 //   res.send('Hello DS!')
 // })
 
+// if we need to use request.body we need to provide this in middleware
+app.use(express.json())
+
 // Available routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/notes', require('./routes/notes'));
