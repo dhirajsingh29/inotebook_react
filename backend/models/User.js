@@ -20,4 +20,9 @@ const UserSchema = new mongoose.Schema({
     }
 });
 
-module.exports = mongoose.model('user', UserSchema);
+const User = mongoose.model('user', UserSchema);
+
+// this will stop multiple API calls with same value to be inserted
+User.createIndexes();
+
+module.exports = User;
