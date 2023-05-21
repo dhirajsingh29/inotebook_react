@@ -22,7 +22,8 @@ const UserSchema = new mongoose.Schema({
 
 const User = mongoose.model('user', UserSchema);
 
-// this will stop multiple API calls with same value to be inserted
-User.createIndexes();
+// this will stop multiple API calls with same email to be inserted; 
+// as it creates index on email column
+// User.createIndexes();
 
 module.exports = User;
