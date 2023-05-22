@@ -4,8 +4,11 @@ const User = require('../models/User');
 const { body, validationResult } = require('express-validator');
 const bcrypt = require('bcryptjs');
 var jwt = require('jsonwebtoken');
+const fetchuser = require('../middleware/fetchuser');
+const dotenv = require('dotenv');
 
-const JWT_SECRET = '***************';
+dotenv.config();
+const jwtSecret = process.env.JWT_SECRET;
 
 // create a user using POST "/api/auth/register".
 router.post('/register', [
@@ -44,14 +47,74 @@ router.post('/register', [
             }
         };
 
-        const authToken = jwt.sign(data, JWT_SECRET);
+        const authToken = jwt.sign(data, jwtSecret);
 
         res.status(201).json({ idToken: authToken });
 
     } catch (error) {
         console.error(error.message);
-        res.status(500).json({ 'Message': 'Some error occured', isSuccess: false });
+        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
     }
 });
+
+// authenticate a user using GET "/api/auth/login"
+router.post('/login', [
+    body('email', 'Enter a valid email').isEmail(),
+    body('password', 'Password can not be null').exists()
+], async (req, res) => {
+
+    // if there are errors, return Bad Request and the errors
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { email, password } = req.body;
+    try {
+        let user = await User.findOne({ email });
+
+        if (!user) {
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+
+        const passwordMatch = await bcrypt.compare(password, user.password);
+        if (!passwordMatch) {
+            return res.status(400).json({ error: 'Invalid credentials' });
+        }
+
+        const data = {
+            user: {
+                id: user.id
+            }
+        };
+
+        console.log(jwtSecret);
+        const authToken = jwt.sign(data, jwtSecret);
+
+        res.status(200).json({ idToken: authToken });
+    }
+    catch (error) {
+        console.error(error.message);
+        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
+    }
+});
+
+// get logged-in user details using POST: '/api/auth/getuser'
+router.post('/getuser', fetchuser, async (req, res) => {
+    try {
+        // req contains user which is coming from fetchuser middleware
+        const userId = req.user.id;
+
+        // '-password' inside select will select all columns except password
+        const user = await User.findById(userId).select('-password');
+
+        res.status(200).send(user);
+    }
+    catch (error) {
+        console.error(error.message);
+        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
+    }
+});
+
 
 module.exports = router;
