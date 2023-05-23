@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import NoteContext from '../context/notes/noteContext';
 import NoteItem from './NoteItem';
 import AddNote from './AddNote';
@@ -6,7 +6,12 @@ import AddNote from './AddNote';
 const Notes = () => {
 
     const context = useContext(NoteContext);
-    const { notes } = context;
+    const { notes, getAllNotes } = context;
+
+    // useEffect is used to call getAllNotes method once when page refreshes
+    useEffect(() => {
+        getAllNotes();
+    }, []);
 
     return (
         <>
