@@ -25,7 +25,7 @@ const NoteState = (props) => {
             setNotes(response.data);
         }
         else {
-            console.log('Error while fetching all notes');
+            console.error('Error while fetching all notes');
         }
     }
 
@@ -52,7 +52,7 @@ const NoteState = (props) => {
             setNotes(notes.concat(note));
         }
         else {
-            console.log('Error while creating note' + response.data);
+            console.error('Error while creating note' + response.data);
         }
     }
 
@@ -73,7 +73,7 @@ const NoteState = (props) => {
             setNotes(newNotes);
         }
         else {
-            console.log('Error while deleting note with id: ' + id);
+            console.error('Error while deleting note with id: ' + id);
         }
     }
 
@@ -94,14 +94,20 @@ const NoteState = (props) => {
             }
         );
 
-        for (let index = 0; index < notes.length; index++) {
-            const note = notes[index];
+        if (response.status === 200) {
+            // newNotes creation is required as we should not modify state directly
+            const newNotes = JSON.parse(JSON.stringify(notes));
 
-            if (note._id === id) {
-                note.title = title;
-                note.description = description;
-                note.tag = tag;
-            }
+            const index = newNotes.findIndex(note => note._id === id);
+
+            newNotes[index].title = title;
+            newNotes[index].description = description;
+            newNotes[index].tag = tag;
+
+            setNotes(newNotes);
+        }
+        else {
+            console.error('Error updating note with id: ' + id);
         }
     }
 

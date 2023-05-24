@@ -6,11 +6,12 @@ export default function AddNote() {
     const context = useContext(NoteContext);
     const { addNote } = context;
 
-    const [note, setNote] = useState({title: '', description: '', tag: 'General'});
+    const [note, setNote] = useState({title: '', description: '', tag: ''});
 
     const handleOnClick = (e) => {
         e.preventDefault(); // to restrict page reload
         addNote(note.title, note.description, note.title);
+        setNote({title: '', description: '', tag: ''});
     }
 
     const handleOnChange = (e) => {
@@ -37,7 +38,10 @@ export default function AddNote() {
                             className="form-control"
                             id="title"
                             name="title"
-                            onChange={handleOnChange} />
+                            value={note.title}
+                            onChange={handleOnChange}
+                            minLength={3}
+                            required />
                     </div>
 
                     <div className="mb-3">
@@ -51,7 +55,10 @@ export default function AddNote() {
                             className="form-control"
                             id="description"
                             name="description"
-                            onChange={handleOnChange} />
+                            value={note.description}
+                            onChange={handleOnChange}
+                            minLength={5}
+                            required />
                     </div>
 
                     <div className="mb-3">
@@ -65,11 +72,12 @@ export default function AddNote() {
                             className="form-control"
                             id="tag"
                             name="tag"
+                            value={note.tag}
                             onChange={handleOnChange} />
                     </div>
 
                     <button type="submit" className="btn btn-primary"
-                        onClick={handleOnClick}>
+                        onClick={handleOnClick} disabled={note.title.length < 3 || note.description.length < 5}>
                         Add Note
                     </button>
 
