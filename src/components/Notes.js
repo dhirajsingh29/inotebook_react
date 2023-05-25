@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+
 import NoteContext from '../context/notes/noteContext';
 import NoteItem from './NoteItem';
 import AddNote from './AddNote';
@@ -8,9 +10,16 @@ const Notes = () => {
     const context = useContext(NoteContext);
     const { notes, getAllNotes, editNote } = context;
 
+    let navigate = useNavigate();
+
     // useEffect is used to call getAllNotes method once when page refreshes
     useEffect(() => {
-        getAllNotes();
+        if (localStorage.getItem('token')) {
+            getAllNotes();
+        }
+        else {
+            navigate('/login')
+        }
         // eslint-disable-next-line
     }, []);
 

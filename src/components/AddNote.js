@@ -23,7 +23,7 @@ export default function AddNote() {
 
     return (
         <div>
-            <div className="container my-3">
+            <div className="container my-2">
                 <h3>Add a Note</h3>
                 <form className='my-3'>
 

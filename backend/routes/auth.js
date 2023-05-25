@@ -22,7 +22,7 @@ router.post('/register', [
     // if there are errors, return Bad Request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success: false, errors: errors.array() });
     }
 
     try {
@@ -30,7 +30,7 @@ router.post('/register', [
         let user = await User.findOne({ email: req.body.email });
 
         if (user) {
-            return res.status(400).json({ error: 'User with same email already exists.' });
+            return res.status(400).json({ success: false, error: 'User with same email already exists.' });
         }
 
         const salt = await bcrypt.genSalt(10);
@@ -51,11 +51,11 @@ router.post('/register', [
 
         const authToken = jwt.sign(data, jwtSecret);
 
-        res.status(201).json({ idToken: authToken });
+        res.status(201).json({ success: true, idToken: authToken });
 
     } catch (error) {
         console.error(error.message);
-        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 });
 
@@ -68,7 +68,7 @@ router.post('/login', [
     // if there are errors, return Bad Request and the errors
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ errors: errors.array() });
+        return res.status(400).json({ success: false, errors: errors.array() });
     }
 
     const { email, password } = req.body;
@@ -76,12 +76,12 @@ router.post('/login', [
         let user = await User.findOne({ email });
 
         if (!user) {
-            return res.status(400).json({ error: 'Invalid credentials' });
+            return res.status(400).json({ success: false, error: 'Invalid credentials' });
         }
 
         const passwordMatch = await bcrypt.compare(password, user.password);
         if (!passwordMatch) {
-            return res.status(400).json({ error: 'Invalid credentials' });
+            return res.status(400).json({ success: false, error: 'Invalid credentials' });
         }
 
         const data = {
@@ -90,14 +90,13 @@ router.post('/login', [
             }
         };
 
-        console.log(jwtSecret);
         const authToken = jwt.sign(data, jwtSecret);
 
-        res.status(200).json({ idToken: authToken });
+        res.status(200).json({ success: true, idToken: authToken });
     }
     catch (error) {
         console.error(error.message);
-        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 });
 
@@ -110,11 +109,11 @@ router.post('/getuser', fetchuser, async (req, res) => {
         // '-password' inside select will select all columns except password
         const user = await User.findById(userId).select('-password');
 
-        res.status(200).send(user);
+        res.status(200).send({ success: false, user });
     }
     catch (error) {
         console.error(error.message);
-        res.status(500).json({ 'Message': 'Internal Server Error', isSuccess: false });
+        res.status(500).json({ success: false, error: 'Internal Server Error' });
     }
 });
 
